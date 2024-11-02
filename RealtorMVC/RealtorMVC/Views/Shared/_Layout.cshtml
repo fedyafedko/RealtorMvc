@@ -1,0 +1,93 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - RealtorMVC</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/RealtorMVC.styles.css" asp-append-version="true" />
+    <style>
+        #main_header {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            height: 100px;
+            padding: 0 20px;
+            width: 100%;
+            background-color: #301403;
+        }
+
+        .buttonBox {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+        }
+
+        .header_button {
+            text-decoration: none;
+            padding: 10px;
+            border: 2px solid #F1FFE7;
+        }
+
+        #name {
+            color: #F1FFE7;
+            padding: 10px;
+            font-size: 20px;
+            font-family: "Arial Black";
+            border: 2px solid #F1FFE7;
+        }
+    </style>
+</head>
+<body style="background-color: #F1FFE7">
+    <header id="main_header">
+        <div id="name">Real estate agency REALTOR</div>
+        <div class="buttonBox">
+           
+            
+        </div>
+    </header>
+    <div>
+        <main style="display: flex; min-height: 600px;">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2024 - RealtorMVC - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+<script>
+    // Function to update buttonBox based on authentication state
+    function updateButtonBox() {
+        var jwtToken = localStorage.getItem('jwtToken'); // Retrieve the JWT token
+        var buttonBox = document.querySelector('.buttonBox');
+
+        if (jwtToken) {
+            buttonBox.innerHTML = `
+                    <a class="header_button" style="color: #F1FFE7" id="profile" href="https://djinni.co/jobs/my-profile/">Profile</a>
+                    <a class="header_button" style="color: #F1FFE7" id="signOut" href="#">Sign Out</a>`;
+        } else {
+            buttonBox.innerHTML = '<a class="header_button" style="color: #F1FFE7" id="auth" href="../Auth/SignIn">Sign in</a>';
+        }
+    }
+
+    // Initial update of buttonBox on page load
+    updateButtonBox();
+
+    // Add event listener for the Sign Out button
+    document.getElementById('signOut').addEventListener('click', function (event) {
+        event.preventDefault(); // Prevent default anchor behavior
+        localStorage.removeItem('jwtToken'); // Remove the JWT token from local storage
+        updateButtonBox(); // Update buttonBox after signing out
+    });
+</script>
+

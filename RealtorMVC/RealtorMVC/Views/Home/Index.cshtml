@@ -1,0 +1,39 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center" style="width:100%;">
+    <img src="https://plus.unsplash.com/premium_photo-1676823553207-758c7a66e9bb?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cm9vbXxlbnwwfHwwfHx8MA%3D%3D"
+         alt="Real estate image"
+         style="object-position: center; object-fit: cover; width: 100%; height: 500px;" />
+    <div style="width: 90%">
+        @{
+            if (User.Identity.IsAuthenticated)
+            {
+                <h1>Welcome, @User.Identity.Name!</h1>
+                <p>Click the button below to get text from the controller.</p>
+                <button id="textButton" class="btn btn-primary">Get text from controller</button>
+                <p id="controllerText"></p>
+            }
+            else
+            {
+                <h1>Welcome to RealtorMVC!</h1>
+                <p>Click the button below to get text from the controller.</p>
+                <button id="textButton" class="btn btn-primary">Get text from controller</button>
+                <p id="controllerText"></p>
+            }   }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('textButton').addEventListener('click', function () {
+            fetch('/Home/GetTextFromController')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('controllerText').textContent = data;
+                })
+                .catch(error => console.error('Error fetching text from controller:', error));
+        });
+    </script>
+}
