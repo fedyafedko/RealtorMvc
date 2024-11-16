@@ -1,0 +1,159 @@
+﻿<div class="formapartment">
+    <div class="create-card">
+        <h2>Upload Apartment Photos</h2>
+        <form id="uploadPhotosForm" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="apartmentPhotos">Select Apartment Photos</label>
+                <input type="file" id="apartmentPhotos" name="apartmentPhotos" multiple accept="image/*" class="form-control">
+            </div>
+            <div id="photoPreviewContainer" class="photo-preview-container"></div>
+            <button type="submit" class="btn-primary">Upload Photos</button>
+        </form>
+    </div>
+
+    <div class="apartment-details">
+        <h2>Apartment Details</h2>
+        <div class="details-container">
+            <div class="column">
+            </div>
+            <div class="column">
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .formapartment {
+        display: flex;
+        gap: 20px;
+    }
+    
+    .create-card, .apartment-details {
+        flex: 1;
+        background-color: #301403;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        color: white;
+        width: 600px;
+    }
+
+    .details-container {
+        display: flex;
+        gap: 30px;
+    }
+
+    .column {
+        flex: 1;
+    }
+
+    .form-group {
+        margin-bottom: 10px;
+    }
+
+    .btn-primary {
+        border: none;
+        background-color: white;
+        color: #301403;
+        margin-top: 10px;
+        border-radius: 10px;
+    }
+    .btn-primary:hover {
+            background-color: white;
+            color: #301403;
+    }
+
+    .photo-preview-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+        .photo-preview-container img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", async function () {
+        await fetchApartmentData();
+    });
+    const urlParams = new URLSearchParams(window.location.search);
+
+    const id = urlParams.get('apartmentId');
+    document.getElementById('apartmentPhotos').addEventListener('change', function (event) {
+        const photoPreviewContainer = document.getElementById('photoPreviewContainer');
+        photoPreviewContainer.innerHTML = '';
+
+        Array.from(event.target.files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                photoPreviewContainer.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        });
+    });
+    async function fetchApartmentData() {
+        fetch(`/Apartment/GetById?id=${id}`)
+        .then(response => response.json())
+        .then(data => {
+            document.querySelector('.column:first-child').innerHTML = `
+                <p><strong>Name:</strong> ${data.name}</p>
+                <p><strong>Description:</strong> ${data.description}</p>
+                <p><strong>Number of Rooms:</strong> ${data.numberRoom}</p>
+                <p><strong>Square:</strong> ${data.square} m²</p>
+                <p><strong>Floor:</strong> ${data.floor}</p>
+                <p><strong>Price:</strong> $${data.price}</p>
+            `;
+
+            document.querySelector('.column:nth-child(2)').innerHTML = `
+                <h3>Address</h3>
+                <p><strong>Country:</strong> ${data.address.country}</p>
+                    <p><strong>City:</strong> ${data.address.city}</p>
+                    <p><strong>Street:</strong> ${data.address.street}</p>
+                    <p><strong>House:</strong> ${data.address.house}</p>
+                    <p><strong>Zip Code:</strong> ${data.address.zipCode}</p>
+            `;
+        })
+        .catch(error => {
+            console.error('Error fetching apartment details:', error);
+        });
+    }
+
+
+    document.getElementById('uploadPhotosForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        var yourAuthToken = localStorage.getItem('jwtToken');
+        const formData = new FormData();
+
+        formData.append('apartmentId', id);
+
+        const files = document.getElementById('apartmentPhotos').files;
+        for (let i = 0; i < files.length; i++) {
+            formData.append('images', files[i]);
+        }
+
+        fetch('/Apartment/UploadImages', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + yourAuthToken,
+            },
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+               alert('Photos uploaded successfully!');
+                window.location.href = '/User';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    });
+</script>

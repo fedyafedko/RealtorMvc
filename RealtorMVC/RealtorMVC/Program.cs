@@ -18,6 +18,10 @@ using System.Web.Mvc;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using RealtorMVC.BLL.Service;
+using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi.Any;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +30,7 @@ builder.Services.ConfigsAssembly(builder.Configuration, opt => opt
        .AddConfig<JwtConfig>()
        .AddConfig<EmailConfig>()
        .AddConfig<UserAvatarConfig>()
+       .AddConfig<ApartmentImagesConfig>()
        .AddConfig<AuthConfig>());
 
 var tokenValidationParameters = new TokenValidationParameters
@@ -50,6 +55,7 @@ builder.Services.AddAuthentication(configureOptions: x =>
     });
 
 builder.Services.AddSingleton(tokenValidationParameters);
+
 builder.Services.AddAutoMapper(typeof(AuthProfile));
 
 // DbContext
@@ -64,6 +70,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IEmailConfirmationService, EmailConfirmationService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IApartmentService, ApartmentService>();
 
 // Identity
 builder.Services.AddIdentity<User, IdentityRole<Guid>>()
@@ -98,6 +106,12 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "Uploads")),
+    RequestPath = "/Uploads"
+});
 
 app.UseHttpsRedirection();
 app.UseCors(

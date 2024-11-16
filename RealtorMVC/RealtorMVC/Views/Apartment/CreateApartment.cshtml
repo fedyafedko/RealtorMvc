@@ -1,0 +1,172 @@
+﻿@model RealtorMVC.Models.Apartment.CreateApartmentModel
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<style>
+    .create-card {
+        width: 700px;
+        height: auto;
+        background-color: #301403;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        text-align: center;
+        padding: 20px;
+    }
+
+    .form-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: space-between;
+    }
+
+    label {
+        color: white;
+    }
+
+    h2 {
+        color: white;
+    }
+
+    .form-group {
+        width: 45%; /* Set width to 48% to fit two fields in a row */
+        margin-bottom: 15px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+
+    .btn-primary {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .formapartment {
+        margin: 20px;
+    }
+
+    .btn-primary:hover {
+        background-color: #45a049;
+    }
+</style>
+
+<div class="formapartment">
+    <div class="create-card">
+        <h2>Create Apartment</h2>
+        <form asp-action="CreateApartment" method="post" id="createApartmentForm">
+            <div class="form-container">
+                <div class="form-group">
+                    <label asp-for="Name"></label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="NumberRoom"></label>
+                    <input asp-for="NumberRoom" class="form-control" />
+                    <span asp-validation-for="NumberRoom" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Square"></label>
+                    <input asp-for="Square" class="form-control" />
+                    <span asp-validation-for="Square" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Floor"></label>
+                    <input asp-for="Floor" class="form-control" />
+                    <span asp-validation-for="Floor" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Price"></label>
+                    <input asp-for="Price" class="form-control" />
+                    <span asp-validation-for="Price" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Description"></label>
+                    <textarea asp-for="Description" class="form-control"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-container">
+                <div class="form-group">
+                    <label asp-for="Address.Country"></label>
+                    <input asp-for="Address.Country" class="form-control" />
+                    <span asp-validation-for="Address.Country" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Address.City"></label>
+                    <input asp-for="Address.City" class="form-control" />
+                    <span asp-validation-for="Address.City" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Address.Street"></label>
+                    <input asp-for="Address.Street" class="form-control" />
+                    <span asp-validation-for="Address.Street" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Address.House"></label>
+                    <input asp-for="Address.House" class="form-control" />
+                    <span asp-validation-for="Address.House" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Address.ZipCode"></label>
+                    <input asp-for="Address.ZipCode" class="form-control" />
+                    <span asp-validation-for="Address.ZipCode" class="text-danger"></span>
+                </div>
+            </div>
+            <button type="submit" class="btn-primary">Create</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.querySelector('form').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        var yourAuthToken = localStorage.getItem('jwtToken'); 
+
+        var formData = new FormData(this);
+
+        var formObject = {
+            Name: formData.get('Name'),
+            Description: formData.get('Description'),
+            NumberRoom: formData.get('NumberRoom'),
+            Square: formData.get('Square'),
+            Floor: formData.get('Floor'),
+            Price: formData.get('Price'),
+            Address: {
+                Country: formData.get('Address.Country'),
+                City: formData.get('Address.City'),
+                Street: formData.get('Address.Street'),
+                House: formData.get('Address.House'),
+                ZipCode: formData.get('Address.ZipCode')
+            }
+        };
+
+        fetch('@Url.Action("CreateApartment", "Apartment")', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + yourAuthToken,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formObject)
+        })
+            .then(response => response.json())
+            .then(data => {
+                window.location.href = `/Apartment/AddApartmentImages?apartmentId=${data.id}`;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    });
+</script>
+

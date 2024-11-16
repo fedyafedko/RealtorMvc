@@ -1,0 +1,335 @@
+﻿@model RealtorMVC.Models.User.UserModel
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<style>
+    .profile-card, .apartment-card {
+        width: 450px;
+        height: 500px;
+        background-color: #301403;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        text-align: center;
+        padding: 20px;
+    }
+
+    .profile-avatar {
+        position: relative;
+        margin-bottom: 15px;
+        cursor: pointer;
+    }
+
+        .profile-avatar img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 3px solid #F1FFE7;
+            object-fit: cover;
+        }
+
+    .profile-info {
+        padding: 10px;
+    }
+
+    .profile-name,
+    .profile-bio {
+        width: 100%;
+        font-size: 1em;
+        color: #fff;
+        border: none;
+        background: none;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+        .profile-name[disabled],
+        .profile-bio[disabled] {
+            color: #777;
+        }
+
+    .profile-bio {
+        resize: none;
+        height: 60px;
+    }
+
+    .profile-edit-btn {
+        background-color: #F1FFE7;
+        color: #000;
+        border: none;
+        padding: 10px 20px;
+        font-size: 0.9em;
+        font-weight: bold;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-top: 10px;
+    }
+    .profile {
+        display: flex;
+        flex-direction: row;
+        gap: 20px;
+    }
+
+    .apartment_button {
+        text-decoration: none;
+        padding: 10px;
+        border: 2px solid #F1FFE7;
+        color : #F1FFE7;
+    }
+    .apartment_button :hover {
+        background-color: #F1FFE7;
+        color: #F1FFE7;
+    }
+
+    .apartment-list {
+        display: flex;
+        flex-direction: column;
+        margin-top: 20px;
+        gap: 10px;
+        overflow-y: auto;
+        max-height: 500px;
+        padding-right: 5px;
+    }
+
+    .apartment {
+        background-color: #45210B;
+        border-radius: 8px;
+        padding: 10px;
+        color: #F1FFE7;
+        text-align: left;
+        transition: background-color 0.3s ease;
+        cursor: pointer;
+    }
+
+        .apartment:hover {
+            background-color: #603F2B;
+        }
+
+        .apartment h3 {
+            margin: 0;
+            font-size: 1.1em;
+            color: #F1FFE7;
+        }
+
+        .apartment p {
+            margin: 5px 0;
+            color: #CCCCCC;
+        }
+
+    .apartment-list::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .apartment-list::-webkit-scrollbar-thumb {
+        background-color: #F1FFE7;
+        border-radius: 3px;
+    }
+</style>
+
+<div class="profile">
+    <div class="profile-card">
+        <div class="profile-avatar">
+            <img id="avatarImage" src="https://via.placeholder.com/150" alt="User Avatar" />
+            <input type="file" id="avatarInput" accept="image/*" style="display: none;" />
+        </div>
+        <i id="deleteAvatar" class="fas fa-trash" style="color: aliceblue; cursor: pointer;"></i>
+        <div class="profile-info">
+            <input type="text" id="firstName" class="profile-name" value="" placeholder="First Name" />
+            <input type="text" id="lastName" class="profile-name" value="" placeholder="Last Name" />
+            <div id="email" class="profile-name"></div>
+            <input type="text" id="phoneNumber" class="profile-name" value="" placeholder="Phone Number" />
+            <div id="role" class="profile-name"></div>
+
+            <button id="saveButton" class="profile-edit-btn">Save Changes</button>
+        </div>
+    </div>
+    <div id="sellerApartmentCard" class="apartment-card" style="display: none; flex-direction: column;">
+        <a class="apartment_button" href="/Apartment/CreateApartment">Add Apartment</a>
+        <div class="apartment-list" id="apartment-list"></div>
+    </div>
+</div>
+
+
+<script>
+    const yourAuthToken = localStorage.getItem('jwtToken');
+
+    async function fetchApartmentsForRealtor() {
+        try {
+            const response = await fetch('/Apartment/GetAllForRealtor', {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + yourAuthToken,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const apartments = await response.json();
+                renderApartments(apartments); 
+            } else {
+                console.error('Failed to fetch apartments for realtor');
+            }
+        } catch (error) {
+            console.error('An error occurred while fetching apartments:', error);
+        }
+    }
+
+    function renderApartments(apartments) {
+        const apartmentList = document.getElementById('apartment-list');
+
+        apartments.forEach(apartment => {
+            const apartmentDiv = document.createElement('div');
+            apartmentDiv.className = 'apartment';
+            apartmentDiv.onclick = () => {
+                window.location.href = `/Apartment/Details/${apartment.id}`;
+            };
+
+            const detailsDiv = document.createElement('div');
+            detailsDiv.className = 'apartment-details';
+
+            const name = document.createElement('h3');
+            name.textContent = apartment.name;
+            detailsDiv.appendChild(name);
+
+            const description = document.createElement('p');
+            description.textContent = apartment.description;
+            detailsDiv.appendChild(description);
+
+            const price = document.createElement('p');
+            price.textContent = apartment.price;
+            detailsDiv.appendChild(price);
+
+            apartmentDiv.appendChild(detailsDiv);
+            apartmentList.appendChild(apartmentDiv);
+        });
+    }
+
+    document.getElementById("avatarImage").addEventListener("click", function () {
+        document.getElementById("avatarInput").click();
+    });
+
+    document.addEventListener("DOMContentLoaded", async function () {
+        await fetchUserData();
+    });
+
+    document.getElementById("saveButton").addEventListener("click", async function () {
+
+        const firstName = document.getElementById("firstName").value;
+        const lastName = document.getElementById("lastName").value;
+        const phoneNumber = document.getElementById("phoneNumber").value;
+
+        const updateUserModel = {
+            firstName: firstName,
+            lastName: lastName,
+            phoneNumber: phoneNumber
+        };
+
+        await saveUserData(updateUserModel);
+    });
+
+    document.getElementById("deleteAvatar").addEventListener("click", async function () {
+        try {
+            const response = await fetch('/User/DeleteAvatar', {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': 'Bearer ' + yourAuthToken
+                }
+            });
+
+            if (response.ok) {
+                document.getElementById("avatarImage").src = "https://via.placeholder.com/150";
+                console.log("Avatar deleted successfully!");
+            } else {
+                console.error("Failed to delete avatar.");
+            }
+        } catch (error) {
+            console.error("An error occurred during the delete: " + error.message);
+        }
+    });
+
+    document.getElementById("avatarInput").addEventListener("change", async function (event) {
+        const file = event.target.files[0];
+        if (file) {
+            try {
+                const formData = new FormData();
+                formData.append("avatar", file);
+
+                const response = await fetch('/User/UploadAvatar', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + yourAuthToken
+                    },
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log(result);
+                    document.getElementById("avatarImage").src = `http://localhost:5090${result.path}`;
+                    console.log("Avatar uploaded successfully!");
+                } else {
+                    console.error("Failed to upload avatar.");
+                }
+            } catch (error) {
+                console.error("An error occurred during the upload: " + error.message);
+            }
+        }
+    });
+
+    async function saveUserData(updateUserModel) {
+        try {
+            const response = await fetch(`/User/EditProfile`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': 'Bearer ' + yourAuthToken,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updateUserModel)
+            });
+
+            if (response.ok) {
+                const updatedUser = await response.json();
+                console.log('Profile updated successfully:', updatedUser);
+            } else {
+                const error = await response.json();
+                console.error('Error updating profile:', error);
+            }
+        } catch (error) {
+            console.error('An error occurred:', error);
+        }
+    }
+
+    async function fetchUserData() {
+        try {
+            const response = await fetch('/User/GetUser', {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + yourAuthToken,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const user = await response.json();
+                document.getElementById("avatarImage").src = user.avatarUrl ? `http://localhost:5090${user.avatarUrl}` : "https://via.placeholder.com/150";
+                document.getElementById("firstName").value = user.firstName || "";
+                document.getElementById("lastName").value = user.lastName || "";
+                document.getElementById("email").innerText = user.email || "";
+                document.getElementById("phoneNumber").value = user.phoneNumber || "";
+                document.getElementById("role").innerText = user.role || "";
+
+                if (user.role === "Seller") {
+                    document.getElementById("sellerApartmentCard").style.display = "flex";
+                    fetchApartmentsForRealtor();
+                }
+            } else {
+                document.getElementById("controllerText").innerText =
+                    'Failed to get text from controller.';
+            }
+        } catch (error) {
+            document.getElementById("controllerText").innerText =
+                'An error occurred: ' + error.message;
+        }
+    }
+</script>
