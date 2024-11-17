@@ -3,5 +3,5 @@
 public class DeleteApartmentImageRequest
 {
     public Guid ApartmentId { get; set; }
-    public List<string> Images { get; set; } = null!;
+    public string Image { get; set; } = null!;
 }

@@ -1,6 +1,8 @@
 ﻿@model RealtorMVC.Models.User.UserModel
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
 
 <style>
     .profile-card, .apartment-card {
@@ -125,6 +127,22 @@
         background-color: #F1FFE7;
         border-radius: 3px;
     }
+
+    .update-button, .delete-button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1.2em;
+        color: #007bff;
+    }
+
+    .delete-button {
+        color: #dc3545;
+    }
+
+        .update-button:hover, .delete-button:hover {
+            opacity: 0.8;
+        }
 </style>
 
 <div class="profile">
@@ -175,15 +193,16 @@
         }
     }
 
-    function renderApartments(apartments) {
+        function renderApartments(apartments) {
         const apartmentList = document.getElementById('apartment-list');
+        apartmentList.innerHTML = '';
 
         apartments.forEach(apartment => {
             const apartmentDiv = document.createElement('div');
             apartmentDiv.className = 'apartment';
-            apartmentDiv.onclick = () => {
-                window.location.href = `/Apartment/Details/${apartment.id}`;
-            };
+            apartmentDiv.style.display = 'flex';
+            apartmentDiv.style.justifyContent = 'space-between';
+            apartmentDiv.style.alignItems = 'center';
 
             const detailsDiv = document.createElement('div');
             detailsDiv.className = 'apartment-details';
@@ -197,12 +216,62 @@
             detailsDiv.appendChild(description);
 
             const price = document.createElement('p');
-            price.textContent = apartment.price;
+            price.textContent = `${apartment.price} USD`;
             detailsDiv.appendChild(price);
 
             apartmentDiv.appendChild(detailsDiv);
+
+            const actionDiv = document.createElement('div');
+            actionDiv.style.display = 'flex';
+            actionDiv.style.gap = '10px';
+
+            const updateButton = document.createElement('button');
+            updateButton.className = 'update-button';
+            updateButton.innerHTML = '<i class="fas fa-edit"></i>';
+            updateButton.title = 'Update';
+            updateButton.onclick = (event) => {
+                event.stopPropagation();
+                window.location.href = `/Apartment/UpdateApartment?apartmentId=${apartment.id}`;
+            };
+
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'delete-button';
+            deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
+            deleteButton.title = 'Delete';
+            deleteButton.onclick = async (event) => {
+                event.stopPropagation();
+                if (confirm('Are you sure you want to delete this apartment?')) {
+                    await deleteApartment(apartment.id);
+                }
+            };
+
+            actionDiv.appendChild(updateButton);
+            actionDiv.appendChild(deleteButton);
+            apartmentDiv.appendChild(actionDiv);
+
             apartmentList.appendChild(apartmentDiv);
         });
+    }
+
+    async function deleteApartment(apartmentId) {
+        try {
+            const response = await fetch(`/Apartment/Delete?id=${apartmentId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                alert('Apartment deleted successfully!');
+                location.reload();
+            } else {
+                alert('Failed to delete the apartment.');
+            }
+        } catch (error) {
+            console.error('Error deleting apartment:', error);
+            alert('An error occurred while deleting the apartment.');
+        }
     }
 
     document.getElementById("avatarImage").addEventListener("click", function () {

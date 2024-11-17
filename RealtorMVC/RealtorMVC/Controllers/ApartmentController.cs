@@ -22,7 +22,19 @@ namespace RealtorMVC.Controllers
         }
 
         [HttpGet]
+        public IActionResult UpdateApartment()
+        {
+            return View();
+        }
+
+        [HttpGet]
         public IActionResult AddApartmentImages()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult Details()
         {
             return View();
         }
@@ -63,6 +75,28 @@ namespace RealtorMVC.Controllers
         {
             var userId = HttpContext.GetUserId();
             var result = await _apartmentService.UploadImagesAsync(userId, request);
+            return Ok(result);
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> Delete([FromQuery] Guid id)
+        {
+            var result = await _apartmentService.DeleteApartmentAsync(id);
+            return Ok(result);
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteImages([FromBody] DeleteApartmentImageRequest request)
+        {
+            var userId = HttpContext.GetUserId();
+            var result = await _apartmentService.DeleteImagesAsync(userId, request);
+            return Ok(result);
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> Update([FromBody] UpdateApartmentModel model)
+        {
+            var result = await _apartmentService.UpdateApartmentAsync(model.Id, model);
             return Ok(result);
         }
     }

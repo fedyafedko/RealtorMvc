@@ -105,7 +105,7 @@ public class ApartmentService : IApartmentService
         var apartment = await _apartmentRepository.FirstOrDefaultAsync(a => a.Id == id)
             ?? throw new NotFoundException("Apartment with this id does not exist");
 
-        _mapper.Map(apartment, apartment);
+        _mapper.Map(model, apartment);
         await _apartmentRepository.UpdateAsync(apartment);
         return _mapper.Map<ApartmentModel>(apartment);
     }
@@ -160,15 +160,13 @@ public class ApartmentService : IApartmentService
 
         var wwwPath = _env.ContentRootPath;
         var productImegesPath = Path.Combine(wwwPath, _apartmentImagesConfig.Folder);
-        foreach (var image in request.Images)
-        {
-            var path = Path.Combine(productImegesPath, request.ApartmentId.ToString(), image);
 
-            if (!File.Exists(path))
-                throw new NotFoundException("File not found");
+        var path = Path.Combine(productImegesPath, request.ApartmentId.ToString(), request.Image);
 
-            File.Delete(path);
-        }
+        if (!File.Exists(path))
+            throw new NotFoundException("File not found");
+
+        File.Delete(path);
 
         return true;
     }
