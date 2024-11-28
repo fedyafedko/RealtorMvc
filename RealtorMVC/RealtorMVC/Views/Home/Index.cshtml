@@ -2,38 +2,104 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center" style="width:100%;">
-    <img src="https://plus.unsplash.com/premium_photo-1676823553207-758c7a66e9bb?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cm9vbXxlbnwwfHwwfHx8MA%3D%3D"
-         alt="Real estate image"
-         style="object-position: center; object-fit: cover; width: 100%; height: 500px;" />
-    <div style="width: 90%">
-        @{
-            if (User.Identity.IsAuthenticated)
-            {
-                <h1>Welcome, @User.Identity.Name!</h1>
-                <p>Click the button below to get text from the controller.</p>
-                <button id="textButton" class="btn btn-primary">Get text from controller</button>
-                <p id="controllerText"></p>
-            }
-            else
-            {
-                <h1>Welcome to RealtorMVC!</h1>
-                <p>Click the button below to get text from the controller.</p>
-                <button id="textButton" class="btn btn-primary">Get text from controller</button>
-                <p id="controllerText"></p>
-            }   }
+<div class="text-center" style="display: flex; flex-direction: column; width:100%;">
+    <div class="text-center" style="width:100%;">
+        <img src="https://plus.unsplash.com/premium_photo-1676823553207-758c7a66e9bb?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cm9vbXxlbnwwfHwwfHx8MA%3D%3D"
+             alt="Real estate image"
+             style="object-position: center; object-fit: cover; width: 100%; height: 500px;" />
+    </div>
+
+    <div id="apartment-list" style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; width: 90%; margin: auto; padding: 20px;">
     </div>
 </div>
 
-@section Scripts {
-    <script>
-        document.getElementById('textButton').addEventListener('click', function () {
-            fetch('/Home/GetTextFromController')
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById('controllerText').textContent = data;
-                })
-                .catch(error => console.error('Error fetching text from controller:', error));
+<style>
+    .apartment-card {
+        width: 280px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        font-family: Arial, sans-serif;
+        cursor: pointer;
+    }
+
+        .apartment-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+    .apartment-card-content {
+        padding: 12px;
+    }
+
+    .apartment-card h3 {
+        font-size: 1.1rem;
+        margin: 8px 0;
+        color: #333;
+    }
+
+    .apartment-card p {
+        margin: 4px 0;
+        font-size: 0.9rem;
+        color: #555;
+    }
+
+        .apartment-card p strong {
+            font-weight: 600;
+        }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", async function () {
+        await getApartments();
+    });
+
+    async function getApartments() {
+        try {
+            const response = await fetch('/Apartment/GetAll', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const apartments = await response.json();
+                renderApartments(apartments);
+            } else {
+                console.error('Failed to fetch apartments for realtor');
+            }
+        } catch (error) {
+            console.error('An error occurred while fetching apartments:', error);
+        }
+    }
+
+    function renderApartments(apartmentList) {
+        const container = document.getElementById("apartment-list");
+        apartmentList.forEach(apartment => {
+            const apartmentCard = document.createElement("div");
+            apartmentCard.className = "apartment-card";
+
+            console.log(apartment.images);
+
+            apartmentCard.innerHTML = `
+                        <img src="${apartment.images && apartment.images.length > 0 ? "http://localhost:5090"+apartment.images[0] : "https://via.placeholder.com/150"}" alt="${apartment.name} Image" />
+                        <div class="apartment-card-content">
+                        <h3>${apartment.name}</h3>
+                        <p><strong>Rooms:</strong> ${apartment.numberRoom}</p>
+                        <p><strong>Square:</strong> ${apartment.square} m²</p>
+                        <p><strong>Floor:</strong> ${apartment.floor}</p>
+                        <p><strong>Price:</strong> ${apartment.price}</p>
+                        <p><strong>Address:</strong> ${apartment.address.street}, ${apartment.address.city}, ${apartment.address.country}</p>
+                    </div>
+                `;
+
+            apartmentCard.addEventListener("click", () => {
+            window.location.href = `/Apartment/Details?apartmentId=${apartment.id}`;
         });
-    </script>
-}
+            container.appendChild(apartmentCard);
+        });
+    }
+</script>

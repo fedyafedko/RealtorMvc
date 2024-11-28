@@ -30,6 +30,12 @@ namespace RealtorMVC.Controllers
             return View();
         }
 
+        [HttpGet]
+        public IActionResult SignUp()
+        {
+            return View();
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SignIn(SignInModel model)
@@ -46,13 +52,6 @@ namespace RealtorMVC.Controllers
             }
 
             return View(model);
-        }
-
-
-        [HttpGet]
-        public IActionResult SignUp()
-        {
-            return View();
         }
 
         [HttpPost]

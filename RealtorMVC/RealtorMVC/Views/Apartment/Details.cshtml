@@ -1,0 +1,185 @@
+﻿<style>
+    .apartment-container {
+        width: 900px;
+        margin: 20px auto;
+        padding: 20px;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .apartment-image-display {
+        text-align: center;
+        margin-bottom: 20px;
+        display: none;
+    }
+
+        .apartment-image-display img {
+            width: 100%;
+            max-height: 500px;
+            height: auto;
+            border-radius: 8px;
+            border: 2px solid #ccc;
+            object-position: center;
+            object-fit: cover;
+            display: block;
+        }
+
+    .apartment-gallery {
+        display: flex;
+        overflow-x: auto;
+        gap: 10px;
+        padding: 10px 0;
+        margin-bottom: 20px;
+    }
+
+        .apartment-gallery::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .apartment-gallery::-webkit-scrollbar-thumb {
+            background-color: #007bff;
+            border-radius: 4px;
+        }
+
+        .apartment-gallery::-webkit-scrollbar-track {
+            background-color: #f0f0f0;
+        }
+
+        .apartment-gallery img {
+            flex: 0 0 auto;
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            cursor: pointer;
+            border: 2px solid transparent;
+            border-radius: 5px;
+        }
+
+            .apartment-gallery img:hover {
+                border: 2px solid #007bff;
+            }
+
+    .apartment-title {
+        text-align: center;
+        font-size: 1.5em;
+        margin-top: 10px;
+        margin-bottom: 20px;
+    }
+
+    .apartment-details {
+        line-height: 1.6;
+    }
+
+        .apartment-details p {
+            margin: 8px 0;
+        }
+
+        .apartment-details strong {
+            font-weight: 600;
+        }
+
+    .loading {
+        text-align: center;
+        font-size: 1.2em;
+        color: #555;
+        margin: 20px 0;
+    }
+</style>
+
+<div class="apartment-container">
+    <div id="loading" class="loading">Loading apartment details...</div>
+    <div class="apartment-image-display">
+        <img alt="Apartment Image" id="main-image">
+    </div>
+
+    <div class="apartment-gallery" id="gallery">
+    </div>
+
+    <h1 class="apartment-title" id="apartment-name"></h1>
+
+    <div class="apartment-details" id="apartment-details">
+    </div>
+</div>
+
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+
+    const id = urlParams.get('apartmentId');
+
+        document.addEventListener("DOMContentLoaded", async function () {
+        await getApartments();
+    });
+     async function getApartments() {
+        try {
+            // Show loading message
+            document.getElementById("loading").style.display = "block";
+
+            const response = await fetch(`/Apartment/GetById?id=${id}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const apartment = await response.json();
+                renderApartmentDetails(apartment);
+            } else {
+                console.error('Failed to fetch apartment details.');
+            }
+        } catch (error) {
+            console.error('An error occurred while fetching apartments:', error);
+        } finally {
+            // Hide loading message
+            document.getElementById("loading").style.display = "none";
+        }
+    }
+
+        function renderApartmentDetails(apartment) {
+        // Show content sections
+        document.querySelector(".apartment-image-display").style.display = "block";
+        document.getElementById("gallery").style.display = "flex";
+        document.getElementById("apartment-name").style.display = "block";
+        document.getElementById("apartment-details").style.display = "block";
+
+        // Render details (same as before)
+        document.getElementById("apartment-name").textContent = apartment.name;
+
+        const mainImage = document.getElementById("main-image");
+        if (apartment.images && apartment.images.length > 0) {
+            mainImage.src = apartment.images[0];
+        } else {
+            mainImage.src = "https://via.placeholder.com/600x400";
+        }
+        mainImage.alt = `${apartment.name} Image`;
+
+        if (apartment.images && apartment.images.length > 0) {
+            const gallery = document.getElementById("gallery");
+            apartment.images.forEach(image => {
+                const img = document.createElement("img");
+                img.src = image;
+                img.alt = `${apartment.name} Thumbnail`;
+                img.addEventListener("click", () => {
+                    mainImage.src = image;
+                });
+                gallery.appendChild(img);
+            });
+        }
+
+        const details = document.getElementById("apartment-details");
+        details.innerHTML = `
+            <p><strong>Description:</strong> ${apartment.description}</p>
+            <p><strong>Rooms:</strong> ${apartment.numberRoom}</p>
+            <p><strong>Square:</strong> ${apartment.square} m²</p>
+            <p><strong>Floor:</strong> ${apartment.floor}</p>
+            <p><strong>Price:</strong> ${apartment.price}</p>
+            <p><strong>Address:</strong> ${apartment.address.street}, ${apartment.address.house},
+                ${apartment.address.city}, ${apartment.address.country} (${apartment.address.zipCode})</p>
+            <p><strong>Owner:</strong> ${apartment.user.firstName} ${apartment.user.lastName}</p>
+            <p><strong>Email:</strong> <a href="mailto:${apartment.user.email}">${apartment.user.email}</a></p>
+            <p><strong>Phone:</strong> <a href="tel:${apartment.user.phoneNumber}">${apartment.user.phoneNumber}</a></p>
+        `;
+    }
+
+</script>

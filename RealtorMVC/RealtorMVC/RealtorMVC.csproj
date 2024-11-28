@@ -24,10 +24,27 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+		<PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="6.9.0" />
+		<PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.9.0" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\RealtorMVC.BLL\RealtorMVC.BLL.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Uploads\Apartment\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Update="Views\Apartment\Details.cshtml">
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+	  </Content>
+	  <Content Update="Views\Apartment\CreateApartment.cshtml">
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+	  </Content>
 	</ItemGroup>
 
 </Project>

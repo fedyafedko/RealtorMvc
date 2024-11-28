@@ -1,0 +1,262 @@
+﻿@model RealtorMVC.Models.Apartment.UpdateApartmentModel
+
+<style>
+
+    .photo-preview-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+        .photo-preview-container img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+    .image-wrapper {
+        position: relative;
+        width: 150px;
+        height: 150px;
+    }
+
+        .image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .image-wrapper .remove-image {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            width: 20px;
+            height: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+</style>
+
+<div class="apartment-form-container">
+    <form id="uploadPhotosForm" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="apartmentPhotos">Select Apartment Photos</label>
+            <input type="file" id="apartmentPhotos" name="apartmentPhotos" multiple accept="image/*" class="form-control">
+        </div>
+        <h6>Current images</h6>
+        <div id="photoCurrentContainer" class="photo-preview-container"></div>
+        <h6>Upload images</h6>
+
+        <div id="photoPreviewContainer" class="photo-preview-container"></div>
+    </form>
+
+    <form id="apartmentForm" method="post">
+        <div class="form-group">
+            <label for="Name">Name</label>
+            <input asp-for="Name" class="form-control" id="Name" required />
+        </div>
+
+        <div class="form-group">
+            <label for="Description">Description</label>
+            <textarea asp-for="Description" class="form-control" id="Description" rows="4" required></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="NumberRoom">Number of Rooms</label>
+            <input asp-for="NumberRoom" class="form-control" id="NumberRoom" type="number" min="1" required />
+        </div>
+
+        <div class="form-group">
+            <label for="Square">Square (m²)</label>
+            <input asp-for="Square" class="form-control" id="Square" type="number" step="0.01" min="0" required />
+        </div>
+
+        <div class="form-group">
+            <label for="Floor">Floor</label>
+            <input asp-for="Floor" class="form-control" id="Floor" type="number" min="0" required />
+        </div>
+
+        <div class="form-group">
+            <label for="Price">Price</label>
+            <input asp-for="Price" class="form-control" id="Price" required />
+        </div>
+
+        <button type="submit" class="btn btn-success">Submit</button>
+    </form>
+</div>
+
+<script>
+    const yourAuthToken = localStorage.getItem('jwtToken');
+
+    const urlParams = new URLSearchParams(window.location.search);
+
+    const id = urlParams.get('apartmentId');
+
+        document.addEventListener("DOMContentLoaded", async function () {
+        await getApartments();
+    });
+        document.getElementById('apartmentForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const name = document.getElementById('Name').value;
+        const description = document.getElementById('Description').value;
+        const numberRoom = document.getElementById('NumberRoom').value;
+        const square = document.getElementById('Square').value;
+        const floor = document.getElementById('Floor').value;
+        const price = document.getElementById('Price').value;
+
+        const formData = new FormData();
+
+        formData.append('apartmentId', id);
+
+        const files = document.getElementById('apartmentPhotos').files;
+        for (let i = 0; i < files.length; i++) {
+            formData.append('images', files[i]);
+        }
+
+        fetch('/Apartment/UploadImages', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + yourAuthToken,
+            },
+            body: formData
+        })
+            .then(response => response.json())
+            .catch(error => {
+                console.error('Error:', error);
+            });
+
+        const updateApartmentModel = {
+            id: id,
+            name: name,
+            description: description,
+            numberRoom: numberRoom,
+            square: square,
+            floor: floor,
+            price: price
+        };
+
+        fetch(`/Apartment/Update`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': 'Bearer ' + yourAuthToken,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updateApartmentModel)
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert('Apartment data submitted successfully!');
+            window.location.href = '/User';
+        })
+        .catch(error => {
+            console.error('Error submitting form:', error);
+        });
+    });
+
+     async function getApartments() {
+        try {
+            const response = await fetch(`/Apartment/GetById?id=${id}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const apartment = await response.json();
+                renderApartmentDetails(apartment);
+            } else {
+                console.error('Failed to fetch apartment details.');
+            }
+        } catch (error) {
+            console.error('An error occurred while fetching apartments:', error);
+        }
+    }
+
+    function renderApartmentDetails(apartment) {
+        document.getElementById('Name').value = apartment.name;
+        document.getElementById('Description').value = apartment.description;
+        document.getElementById('NumberRoom').value = apartment.numberRoom;
+        document.getElementById('Square').value = apartment.square;
+        document.getElementById('Floor').value = apartment.floor;
+        document.getElementById('Price').value = apartment.price;
+
+           const photoPreviewContainer = document.getElementById('photoCurrentContainer');
+    photoPreviewContainer.innerHTML = '';
+
+    apartment.images.forEach(imageUrl => {
+        const imageWrapper = document.createElement('div');
+        imageWrapper.classList.add('image-wrapper');
+
+        const img = document.createElement('img');
+        img.src = "http://localhost:5090" + imageUrl;
+        imageWrapper.appendChild(img);
+
+        const removeButton = document.createElement('button');
+        removeButton.classList.add('remove-image');
+        removeButton.innerHTML = '×';
+         removeButton.onclick = async function () {
+        try {
+            const apartmentId = apartment.id;
+            const imageUrl = "/uploads/apartment/ff575a02-b382-49d6-c0d5-08dd068f3d20/apartment_638673934765005519.png";
+            const imageName = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
+            const request = {
+                apartmentId: apartmentId,
+                image: imageName
+            };
+
+            const response = await fetch('/Apartment/DeleteImages', {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${yourAuthToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(request)
+            });
+
+            if (response.ok) {
+                imageWrapper.remove();
+                alert('Image deleted successfully!');
+            } else {
+                console.error('Failed to delete image');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+        imageWrapper.appendChild(removeButton);
+        photoPreviewContainer.appendChild(imageWrapper);
+    });
+    }
+
+
+    document.getElementById('apartmentPhotos').addEventListener('change', function (event) {
+        const photoPreviewContainer = document.getElementById('photoPreviewContainer');
+        photoPreviewContainer.innerHTML = '';
+
+        Array.from(event.target.files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                photoPreviewContainer.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        });
+    });
+</script>

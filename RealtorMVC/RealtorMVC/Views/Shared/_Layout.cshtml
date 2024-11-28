@@ -37,19 +37,20 @@
             font-size: 20px;
             font-family: "Arial Black";
             border: 2px solid #F1FFE7;
+            text-decoration: none;
         }
     </style>
 </head>
 <body style="background-color: #F1FFE7">
     <header id="main_header">
-        <div id="name">Real estate agency REALTOR</div>
+        <a href="/" id="name">Real estate agency REALTOR</a>
         <div class="buttonBox">
            
             
         </div>
     </header>
     <div>
-        <main style="display: flex; min-height: 600px;">
+        <main style="display: flex; min-height: 600px; justify-content: center; align-items: center;">
             @RenderBody()
         </main>
     </div>
@@ -73,7 +74,7 @@
 
         if (jwtToken) {
             buttonBox.innerHTML = `
-                    <a class="header_button" style="color: #F1FFE7" id="profile" href="https://djinni.co/jobs/my-profile/">Profile</a>
+                    <a class="header_button" style="color: #F1FFE7" id="profile" href="/User">Profile</a>
                     <a class="header_button" style="color: #F1FFE7" id="signOut" href="#">Sign Out</a>`;
         } else {
             buttonBox.innerHTML = '<a class="header_button" style="color: #F1FFE7" id="auth" href="../Auth/SignIn">Sign in</a>';
