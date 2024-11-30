@@ -207,6 +207,7 @@
         imageWrapper.appendChild(img);
 
         const removeButton = document.createElement('button');
+        removeButton.type = 'button';
         removeButton.classList.add('remove-image');
         removeButton.innerHTML = '×';
          removeButton.onclick = async function () {
@@ -218,7 +219,7 @@
                 image: imageName
             };
 
-            const response = await fetch('/Apartment/DeleteImages', {
+            const response = await fetch('/Apartment/DeleteImage', {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${yourAuthToken}`,
@@ -228,8 +229,7 @@
             });
 
             if (response.ok) {
-                alert('Image deleted successfully!');
-                window.location.href = `/Apartment/UpdateApartment?apartmentId=${apartment.id}`;
+                imageWrapper.remove();
             } else {
                 console.error('Failed to delete image');
             }

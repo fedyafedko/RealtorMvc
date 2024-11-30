@@ -86,7 +86,8 @@ namespace RealtorMVC.Controllers
         }
 
         [HttpDelete]
-        public async Task<IActionResult> DeleteImages([FromBody] DeleteApartmentImageRequest request)
+        [IgnoreAntiforgeryToken]
+        public async Task<IActionResult> DeleteImage([FromBody] DeleteApartmentImageRequest request)
         {
             var userId = HttpContext.GetUserId();
             var result = await _apartmentService.DeleteImagesAsync(userId, request);

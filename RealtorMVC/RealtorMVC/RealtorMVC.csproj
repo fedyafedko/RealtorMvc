@@ -34,6 +34,7 @@
 
 	<ItemGroup>
 	  <Folder Include="Uploads\Apartment\" />
+	  <Folder Include="Uploads\Avatars\" />
 	</ItemGroup>
 
 	<ItemGroup>
