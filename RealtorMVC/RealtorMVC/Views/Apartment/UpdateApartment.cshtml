@@ -94,7 +94,7 @@
             <input asp-for="Price" class="form-control" id="Price" required />
         </div>
 
-        <button type="submit" class="btn btn-success">Submit</button>
+        <button type="submit" style="margin-top:10px;" class="btn btn-success">Save</button>
     </form>
 </div>
 
@@ -212,7 +212,6 @@
          removeButton.onclick = async function () {
         try {
             const apartmentId = apartment.id;
-            const imageUrl = "/uploads/apartment/ff575a02-b382-49d6-c0d5-08dd068f3d20/apartment_638673934765005519.png";
             const imageName = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
             const request = {
                 apartmentId: apartmentId,
@@ -229,8 +228,8 @@
             });
 
             if (response.ok) {
-                imageWrapper.remove();
                 alert('Image deleted successfully!');
+                window.location.href = `/Apartment/UpdateApartment?apartmentId=${apartment.id}`;
             } else {
                 console.error('Failed to delete image');
             }

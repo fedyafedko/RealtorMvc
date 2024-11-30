@@ -90,7 +90,7 @@ namespace RealtorMVC.Controllers
         {
             var userId = HttpContext.GetUserId();
             var result = await _apartmentService.DeleteImagesAsync(userId, request);
-            return Ok(result);
+            return result ? Ok() : NotFound();
         }
 
         [HttpPut]
