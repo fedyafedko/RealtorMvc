@@ -94,7 +94,7 @@
             <input asp-for="Price" class="form-control" id="Price" required />
         </div>
 
-        <button type="submit" class="btn btn-success">Submit</button>
+        <button type="submit" style="margin-top:10px;" class="btn btn-success">Save</button>
     </form>
 </div>
 
@@ -207,19 +207,19 @@
         imageWrapper.appendChild(img);
 
         const removeButton = document.createElement('button');
+        removeButton.type = 'button';
         removeButton.classList.add('remove-image');
         removeButton.innerHTML = '×';
          removeButton.onclick = async function () {
         try {
             const apartmentId = apartment.id;
-            const imageUrl = "/uploads/apartment/ff575a02-b382-49d6-c0d5-08dd068f3d20/apartment_638673934765005519.png";
             const imageName = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
             const request = {
                 apartmentId: apartmentId,
                 image: imageName
             };
 
-            const response = await fetch('/Apartment/DeleteImages', {
+            const response = await fetch('/Apartment/DeleteImage', {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${yourAuthToken}`,
@@ -230,7 +230,6 @@
 
             if (response.ok) {
                 imageWrapper.remove();
-                alert('Image deleted successfully!');
             } else {
                 console.error('Failed to delete image');
             }

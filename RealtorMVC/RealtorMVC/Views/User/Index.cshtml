@@ -203,6 +203,10 @@
             apartmentDiv.style.display = 'flex';
             apartmentDiv.style.justifyContent = 'space-between';
             apartmentDiv.style.alignItems = 'center';
+            apartmentDiv.onclick = (event) => {
+                event.stopPropagation();
+                window.location.href = `/Apartment/Details?apartmentId=${apartment.id}`;
+            };
 
             const detailsDiv = document.createElement('div');
             detailsDiv.className = 'apartment-details';
