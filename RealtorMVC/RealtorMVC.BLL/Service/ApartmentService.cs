@@ -127,23 +127,25 @@ public class ApartmentService : IApartmentService
 
         var result = new ApartmentImagesResponse();
         result.Paths ??= new List<string>();
-
-        foreach (var image in request.Images)
+        if (request.Images != null)
         {
-            var fileName = image.FileName;
-            var ext = Path.GetExtension(fileName);
+            foreach (var image in request.Images)
+            {
+                var fileName = image.FileName;
+                var ext = Path.GetExtension(fileName);
 
-            if (!_apartmentImagesConfig.FileExtensions.Contains(ext))
-                throw new IncorrectParametersException("Invalid file extension");
+                if (!_apartmentImagesConfig.FileExtensions.Contains(ext))
+                    throw new IncorrectParametersException("Invalid file extension");
 
-            var uniqueSuffix = DateTime.UtcNow.Ticks;
-            fileName = $"apartment_{uniqueSuffix}{ext}";
-            var filePath = Path.Combine(path, fileName);
+                var uniqueSuffix = DateTime.UtcNow.Ticks;
+                fileName = $"apartment_{uniqueSuffix}{ext}";
+                var filePath = Path.Combine(path, fileName);
 
-            using var stream = new FileStream(filePath, FileMode.Create);
-            await image.CopyToAsync(stream);
+                using var stream = new FileStream(filePath, FileMode.Create);
+                await image.CopyToAsync(stream);
 
-            result.Paths.Add(string.Format(_apartmentImagesConfig.Path, apartment.Id, fileName));
+                result.Paths.Add(string.Format(_apartmentImagesConfig.Path, apartment.Id, fileName));
+            }
         }
 
         return result;

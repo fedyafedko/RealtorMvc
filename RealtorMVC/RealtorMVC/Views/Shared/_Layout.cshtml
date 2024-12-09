@@ -67,28 +67,26 @@
 </body>
 </html>
 <script>
-    // Function to update buttonBox based on authentication state
     function updateButtonBox() {
-        var jwtToken = localStorage.getItem('jwtToken'); // Retrieve the JWT token
+        var jwtToken = localStorage.getItem('jwtToken');
         var buttonBox = document.querySelector('.buttonBox');
 
         if (jwtToken) {
             buttonBox.innerHTML = `
                     <a class="header_button" style="color: #F1FFE7" id="profile" href="/User">Profile</a>
-                    <a class="header_button" style="color: #F1FFE7" id="signOut" href="#">Sign Out</a>`;
+                    <a class="header_button" style="color: #F1FFE7" id="signOut" href="/">Sign Out</a>`;
         } else {
             buttonBox.innerHTML = '<a class="header_button" style="color: #F1FFE7" id="auth" href="../Auth/SignIn">Sign in</a>';
         }
     }
 
-    // Initial update of buttonBox on page load
     updateButtonBox();
 
-    // Add event listener for the Sign Out button
     document.getElementById('signOut').addEventListener('click', function (event) {
-        event.preventDefault(); // Prevent default anchor behavior
-        localStorage.removeItem('jwtToken'); // Remove the JWT token from local storage
-        updateButtonBox(); // Update buttonBox after signing out
+        event.preventDefault();
+        localStorage.removeItem('jwtToken');
+        window.location.href = '/Home';
+        updateButtonBox();
     });
 </script>
 

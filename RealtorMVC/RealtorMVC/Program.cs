@@ -13,14 +13,11 @@ using RealtorMVC.Common.Extensions;
 using RealtorMVC.Common.Configs;
 using RealtorMVC.BLL.Profiles;
 using RealtorMVC.Seeding.Extentions;
-using Microsoft.Data.SqlClient;
 using System.Web.Mvc;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using RealtorMVC.BLL.Service;
-using Microsoft.OpenApi.Models;
-using Microsoft.OpenApi.Any;
 using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);

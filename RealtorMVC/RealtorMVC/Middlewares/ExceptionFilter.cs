@@ -20,7 +20,6 @@ public class ExceptionFilter : IExceptionFilter
             ConfirmedEmailException => new BadRequestObjectResult(context.Exception.Message),
             RestrictedAccessException => new BadRequestObjectResult(context.Exception.Message),
             InvalidTokenException => new BadRequestObjectResult(context.Exception.Message),
-            //FluentValidation.ValidationException => new BadRequestObjectResult(context.Exception.Message),
             InvalidSecurityAlgorithmException => new BadRequestObjectResult(context.Exception.Message),
             _ => new ObjectResult(new { error = $"An unexpected error occurred: {context.Exception.Message}" })
             {
